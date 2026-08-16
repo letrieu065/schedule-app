@@ -19,6 +19,11 @@ function App() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [calendarDate, setCalendarDate] = useState(new Date());
+  // Hiệu ứng popup chúc mừng sinh nhật khi vừa vào web
+  useEffect(() => {
+    // Thay tên bạn gái và lời chúc của bạn vào đây nhé
+    alert("🎉 Chúc mừng sinh nhật xói thúi của anh, chúc xói thúi tuổi mới luôn đầy năng lượng và xinh đệp nhé. Em hãy luôn tiến lên về phía trước và hãy làm bất cứ điều gì mà em muốn bất kể hậu quả vì đằng sau luôn có anh ủng hộ và giải quyết mọi điều em ghét, mọi điều em không thích miễn là em muốn. Hãy luôn là chính mình kệ những gì anh nói, anh nói cái mỏ như vậy thôi chứ em làm gì anh cũng thích hết, anh nói là vì muốn chia sẻ với em muốn trò chuyện với em để em vui hơn thôi.❤️");
+  }, []);
   // Hàm lấy dữ liệu từ MongoDB
   const fetchSchedules = async () => {
     try {
@@ -96,8 +101,12 @@ function App() {
   };
 
   return (
+    
     <div className="app-container">
       <div className="header">
+        <div style={{ textAlign: 'center', marginBottom: '15px', color: '#e11d48', fontWeight: 'bold' }}>
+  🎂 Happy Birthday Linh! Chúc em có một ngày làm việc thật rực rỡ và ngọt ngào! ✨
+</div>
         <h1>🗓️ Đồng Bộ Lịch Làm Việc</h1>
         <p>Phân tích ảnh và trích xuất thời gian biểu tự động bằng AI</p>
       </div>
