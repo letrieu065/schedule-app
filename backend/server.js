@@ -89,8 +89,22 @@ app.post('/api/extract-schedule', upload.single('image'), async (req, res) => {
         });
 
         // 3. XÓA LỊCH CŨ VÀ LƯU LỊCH MỚI VÀO DATABASE
-        await Schedule.deleteMany({ name: targetName }); // Tùy chọn: Xóa lịch cũ của người này để tránh trùng lặp
-        const savedEvents = await Schedule.insertMany(events);
+        // 3. THAY VÌ XÓA HẾT, TA SẼ CỘNG DỒN HOẶC CẬP NHẬT TỪNG NGÀY TRONG ẢNH MỚI
+        for (const item of events) {
+            // Kiểm tra xem nhân viên này vào ngày đó đã có ca làm chưa
+            await Schedule.findOneAndUpdate(
+                { name: targetName, date: item.date }, // Điều kiện tìm kiếm: đúng người, đúng ngày
+                { 
+                    start: item.start,
+                    end: item.end,
+                    shift: item.shift 
+                },
+                { upsert: true, new: true } // Nếu có rồi thì sửa, chưa có thì tự động tạo mới (Thêm vào)
+            );
+        }
+
+        // Lấy lại toàn bộ lịch của nhân viên đó (bao gồm cả tuần cũ và tuần mới) để trả về cho frontend
+        const savedEvents = await Schedule.find({ name: targetName });
 
         res.json({ events: savedEvents });
 
