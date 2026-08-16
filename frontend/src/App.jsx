@@ -30,7 +30,7 @@ function App() {
     formData.append('name', name);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/extract-schedule', formData);
+      const response = await axios.post('https://schedule-app-1j0o.onrender.com/api/extract-schedule', formData);
       
       const formattedEvents = response.data.events.map(ev => ({
           ...ev,
