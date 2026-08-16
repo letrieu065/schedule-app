@@ -19,6 +19,10 @@ function App() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [calendarDate, setCalendarDate] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [hourlyRate, setHourlyRate] = useState(19000); // Lương mặc định 25k/h
+  const [salaryData, setSalaryData] = useState(null);
   // Hiệu ứng popup chúc mừng sinh nhật khi vừa vào web
   useEffect(() => {
     // Thay tên bạn gái và lời chúc của bạn vào đây nhé
@@ -42,6 +46,19 @@ function App() {
       console.error("Lỗi tải dữ liệu", error);
     }
   };
+    const fetchSalary = async () => {
+    try {
+      const res = await axios.get(`https://schedule-app-1j0o.onrender.com/api/salary?name=${name}&month=${selectedMonth}&year=${selectedYear}&hourlyRate=${hourlyRate}`);
+      setSalaryData(res.data);
+    } catch (error) {
+      console.error("Lỗi tính lương", error);
+    }
+  };
+
+  // Gọi tự động mỗi khi đổi tháng hoặc đổi mức lương
+  useEffect(() => {
+    fetchSalary();
+  }, [name, selectedMonth, selectedYear, hourlyRate]);
 
   // Tự động chạy hàm trên mỗi khi trang tải xong HOẶC khi đổi tên người tìm kiếm
   useEffect(() => {
@@ -155,6 +172,33 @@ function App() {
           dayLayoutAlgorithm="no-overlap" 
         />
       </div>
+          {/* Khung tính lương tháng */}
+    <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', margin: '20px 0', border: '1px solid #e2e8f0' }}>
+      <h3>💰 Thống kê lương tháng {selectedMonth}/{selectedYear}</h3>
+      <div style={{ display: 'flex', gap: '10px', margin: '10px 0', flexWrap: 'wrap' }}>
+        <label>
+          Tháng: 
+          <input type="number" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} style={{ width: '60px', marginLeft: '5px' }} />
+        </label>
+        <label>
+          Năm: 
+          <input type="number" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ width: '80px', marginLeft: '5px' }} />
+        </label>
+        <label>
+          Lương/giờ (VNĐ): 
+          <input type="number" value={hourlyRate} onChange={(e) => setHourlyRate(e.target.value)} style={{ width: '100px', marginLeft: '5px' }} />
+        </label>
+        <button onClick={fetchSalary} style={{ background: '#0284c7', color: 'white', border: 'none', padding: '5px 15px', borderRadius: '4px', cursor: 'pointer' }}>Cập nhật</button>
+      </div>
+
+      {salaryData && (
+        <div style={{ fontSize: '16px', fontWeight: '500', color: '#334155' }}>
+          <p>✨ Tổng số ca làm: <strong>{salaryData.totalShifts} ca</strong></p>
+          <p>⏳ Tổng số giờ làm: <strong>{salaryData.totalHours} giờ</strong></p>
+          <p style={{ color: '#16a34a', fontSize: '18px' }}>💵 Tổng lương thực nhận: <strong>{salaryData.totalSalary.toLocaleString()} VNĐ</strong></p>
+        </div>
+      )}
+    </div>
     </div>
   );
 }

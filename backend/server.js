@@ -125,4 +125,44 @@ app.get('/api/schedules', async (req, res) => {
         res.status(500).json({ error: "Lỗi lấy dữ liệu" });
     }
 });
+app.get('/api/salary', async (req, res) => {
+    try {
+        const { name, month, year, hourlyRate } = req.query;
+        if (!name || !month || !year) {
+            return res.status(400).json({ error: "Thiếu thông tin tên, tháng hoặc năm!" });
+        }
+
+        // Tạo khoảng thời gian từ ngày đầu đến ngày cuối tháng
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59);
+
+        // Lọc các ca làm của nhân viên trong tháng đó
+        const schedules = await Schedule.find({
+            name: name,
+            start: { $gte: startDate, $lte: endDate }
+        });
+
+        let totalHours = 0;
+        schedules.forEach(item => {
+            const durationMs = new Date(item.end) - new Date(item.start);
+            const hours = durationMs / (1000 * 60 * 60); // Đổi ra số giờ
+            totalHours += hours;
+        });
+
+        const rate = parseFloat(hourlyRate) || 25000; // Mặc định lương 25k/h nếu không nhập
+        const totalSalary = totalHours * rate;
+
+        res.json({
+            name,
+            month: `${month}/${year}`,
+            totalShifts: schedules.length,
+            totalHours: totalHours.toFixed(1),
+            hourlyRate: rate,
+            totalSalary: totalSalary
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Lỗi tính lương" });
+    }
+});
 app.listen(PORT, () => console.log(`Backend đang chạy ở port ${PORT}`));
