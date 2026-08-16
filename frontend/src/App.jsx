@@ -5,6 +5,7 @@ import moment from 'moment';
 import 'moment/locale/vi'; // Import file tiếng Việt để mặc định Thứ 2 là đầu tuần
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './App.css'; 
+import React, { useState, useEffect } from 'react'; // Thêm chữ useEffect vào đây
 
 // Thiết lập ngôn ngữ tiếng Việt cho moment
 moment.updateLocale('vi', {
@@ -19,7 +20,30 @@ function App() {
   const [name, setName] = useState('Linh'); 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [calendarDate, setCalendarDate] = useState(new Date()); 
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  // Hàm lấy dữ liệu từ MongoDB
+  const fetchSchedules = async () => {
+    try {
+      // Đổi URL này thành URL Render của bạn
+      const response = await axios.get(`https://schedule-app-1j0o.onrender.com/api/schedules?name=${name}`);
+      const formattedEvents = response.data.events.map(ev => ({
+          ...ev,
+          start: new Date(ev.start),
+          end: new Date(ev.end),
+      }));
+      setEvents(formattedEvents);
+      if (formattedEvents.length > 0) {
+        setCalendarDate(formattedEvents[0].start);
+      }
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu", error);
+    }
+  };
+
+  // Tự động chạy hàm trên mỗi khi trang tải xong HOẶC khi đổi tên người tìm kiếm
+  useEffect(() => {
+    fetchSchedules();
+  }, [name]); 
 
   const handleUpload = async () => {
     if (!file) return alert("Vui lòng chọn ảnh lịch!");

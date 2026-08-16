@@ -73,8 +73,8 @@ app.post('/api/extract-schedule', upload.single('image'), async (req, res) => {
 
             return {
                 name: targetName,
-                start: new Date(`${item.date}T${startHour}`),
-                end: new Date(`${item.date}T${endHour}`),
+                start: new Date(`${item.date}T${startHour}+07:00`), // Thêm +07:00
+                end: new Date(`${item.date}T${endHour}+07:00`),   // Thêm +07:00
                 shift: item.shift,
                 date: item.date
             };
@@ -93,4 +93,14 @@ app.post('/api/extract-schedule', upload.single('image'), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+app.get('/api/schedules', async (req, res) => {
+    try {
+        const targetName = req.query.name || "Chiêu";
+        const events = await Schedule.find({ name: targetName });
+        res.json({ events });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Lỗi lấy dữ liệu" });
+    }
+});
 app.listen(PORT, () => console.log(`Backend đang chạy ở port ${PORT}`));
