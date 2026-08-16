@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/vi'; // Import file tiếng Việt để mặc định Thứ 2 là đầu tuần
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './App.css'; 
-import React, { useState, useEffect } from 'react'; // Thêm chữ useEffect vào đây
 
 // Thiết lập ngôn ngữ tiếng Việt cho moment
 moment.updateLocale('vi', {
