@@ -40,11 +40,19 @@ app.post('/api/extract-schedule', upload.single('image'), async (req, res) => {
         };
 
         const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" }); // Hoặc model bạn đang dùng ổn định
+        // Lấy năm hiện tại để ép AI không được đoán mò
+        const currentYear = new Date().getFullYear();
         
         const prompt = `Đây là ảnh lịch làm việc của một quán ăn/cafe. 
         - Các hàng được chia làm 3 ca: CA 1 (8H-12H), CA 2 (12H-17H30), CA 3 (17H30-22H).
-        - Các cột từ Thứ 2 đến Chủ nhật, trên tiêu đề có ghi ngày.
+        - Các cột từ Thứ 2 đến Chủ nhật, trên tiêu đề có thể có ghi ngày.
         - Tên nhân viên nằm bên trong các ô.
+        
+        LƯU Ý QUAN TRỌNG VỀ THỜI GIAN:
+        - Năm mặc định là ${currentYear}. 
+        - Nếu trên ảnh chỉ ghi ngày/tháng (ví dụ 4/8, 5/8), BẮT BUỘC phải ghép với năm ${currentYear} để thành định dạng (ví dụ: ${currentYear}-08-04).
+        - Nếu ảnh chỉ ghi "Thứ 2", "Thứ 3" mà hoàn toàn không có ngày, hãy tự động lấy ngày của Thứ 2, Thứ 3 trong tuần hiện tại của năm ${currentYear} để điền vào.
+
         Hãy tìm các ô có chứa tên '${targetName}'. 
         Trả về MỘT MẢNG JSON duy nhất: {"date": "YYYY-MM-DD", "shift": số_ca}. Chỉ trả về JSON.`;
 
